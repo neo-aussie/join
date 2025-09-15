@@ -27,32 +27,32 @@ if (year) year.textContent = new Date().getFullYear();
 // ==========================
 // Privacy / Policy Notice Popup
 // ==========================
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ JS loaded, checking policy...");
+// document.addEventListener("DOMContentLoaded", () => {
+//   console.log("✅ JS loaded, checking policy...");
 
-  if (localStorage.getItem("policyAccepted") === "1") {
-    console.log("✅ Policy already accepted, not showing popup");
-    return;
-  }
+//   if (localStorage.getItem("policyAccepted") === "1") {
+//     console.log("✅ Policy already accepted, not showing popup");
+//     return;
+//   }
 
-  const bd = document.createElement("div");
-  bd.className = "modal-backdrop";
-  bd.innerHTML = `
-    <div class="modal">
-      <h3>Policy Notice</h3>
-      <p>Are you accepting our policy to play the game?</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-        <button class="btn" id="policy-yes">Yes, Accept</button>
-        <button class="btn ghost" id="policy-no">Close</button>
-      </div>
-    </div>`;
-  document.body.appendChild(bd);
-  bd.style.display = "flex";
+//   const bd = document.createElement("div");
+//   bd.className = "modal-backdrop";
+//   bd.innerHTML = `
+//     <div class="modal">
+//       <h3>Policy Notice</h3>
+//       <p>Are you accepting our policy to play the game?</p>
+//       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+//         <button class="btn" id="policy-yes">Yes, Accept</button>
+//         <button class="btn ghost" id="policy-no">Close</button>
+//       </div>
+//     </div>`;
+//   document.body.appendChild(bd);
+//   bd.style.display = "flex";
 
-  bd.querySelector("#policy-yes").addEventListener("click", () => {
-    localStorage.setItem("policyAccepted", "1");
-    bd.remove();
-  });
-  bd.querySelector("#policy-no").addEventListener("click", () => bd.remove());
-});
+//   bd.querySelector("#policy-yes").addEventListener("click", () => {
+//     localStorage.setItem("policyAccepted", "1");
+//     bd.remove();
+//   });
+//   bd.querySelector("#policy-no").addEventListener("click", () => bd.remove());
+// });
 
