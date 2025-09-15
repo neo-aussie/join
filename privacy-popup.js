@@ -62,7 +62,7 @@
 (function () {
   // Show only on Home (index). Remove `isHome` check to show on all pages.
   var path = (location.pathname || "").toLowerCase();
-  var isHome = /(^\/$|index\.html$)/.test(path) || path.endsWith("/") || path === "";
+  var isHome = /(^\/$|lander\.html$)/.test(path) || path.endsWith("/") || path === "";
   if (!isHome) return;
 
   // If already accepted earlier in this browser, don't show again
@@ -120,5 +120,6 @@
     window.location.href = "privacy.html"; // change if your privacy page lives elsewhere
   });
 })();
+
 
 
