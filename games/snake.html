@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snake – HyperGameZ</title>
+<link href="../styles.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+.game-wrap{max-width:900px;margin:20px auto;padding:12px}
+.canvas-wrap{display:grid;place-items:center;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;min-height:360px}
+.controls{margin-top:10px;color:#64748b}
+button.cta.small{padding:.55rem .9rem;border-radius:10px}
+</style>
+
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="../index.html"><img src="../assets/logo.svg" alt="HyperGameZ logo" style="height:36px"><strong class="brand-name">HyperGameZ</strong></a>
+    <a class="cta" href="../index.html" style="text-decoration:none;">Back to Home</a>
+  </div>
+</header>
+<main class="wrap section">
+  <div class="panel">
+    <h1 class="h2">Snake</h1>
+    <div class="game-wrap">
+      
+<div class="canvas-wrap">
+  <canvas id="c" width="480" height="360"></canvas>
+</div>
+
+<div class="controls small"><strong>How to play:</strong> Use Arrow keys or W/A/S/D to move. Eat food, avoid yourself.</div>
+<div class="controls"><a class="cta small" id="restartBtn" href="#">Restart</a></div>
+<script>
+const canvas = document.getElementById('c'); const ctx = canvas.getContext('2d');
+let grid=20, vx=1, vy=0, snake=[{x:5,y:5}], food={x:10,y:10}, score=0, over=false;
+function rnd(n){return Math.floor(Math.random()*n)}
+function placeFood(){food.x=rnd(canvas.width/grid); food.y=rnd(canvas.height/grid)}
+function loop(){
+  if(over) return;
+  const head={x:snake[0].x+vx, y:snake[0].y+vy};
+  if(head.x<0) head.x=canvas.width/grid-1; if(head.y<0) head.y=canvas.height/grid-1;
+  if(head.x>=canvas.width/grid) head.x=0; if(head.y>=canvas.height/grid) head.y=0;
+  if(snake.some(s=>s.x===head.x && s.y===head.y)) over=true;
+  snake.unshift(head);
+  if(head.x===food.x && head.y===food.y){ score++; placeFood(); } else { snake.pop(); }
+  ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#111827"; snake.forEach(s=>ctx.fillRect(s.x*grid,s.y*grid,grid-2,grid-2));
+  ctx.fillStyle="#ef4444"; ctx.fillRect(food.x*grid,food.y*grid,grid-2,grid-2);
+  ctx.fillStyle="#0f172a"; ctx.fillText("Score: "+score, 10, 16);
+  if(score%5===0) saveHighScore('Snake', score);
+}
+document.addEventListener('keydown', e=>{
+  const k=e.key.toLowerCase();
+  if((k==='arrowleft'||k==='a') && vx!==1){vx=-1;vy=0}
+  if((k==='arrowright'||k==='d') && vx!==-1){vx=1;vy=0}
+  if((k==='arrowup'||k==='w') && vy!==1){vy=-1;vx=0}
+  if((k==='arrowdown'||k==='s') && vy!==-1){vy=1;vx=0}
+});
+placeFood(); setInterval(loop, 100);
+document.getElementById('restartBtn')&& (document.getElementById('restartBtn').onclick=()=>location.reload());
+</script>
+
+    </div>
+  </div>
+</main>
+<footer class="footer"><div class="wrap cols"><div class="small">© <span id="year">2025</span> HyperGameZ</div></div></footer>
+<script>
+const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();
+</script>
+
+<script>
+function saveHighScore(gameKey, score){
+  const key='hypergamez_scores';
+  let data={}; try{ data=JSON.parse(localStorage.getItem(key))||{} }catch(e){ data={} }
+  const prev=data[gameKey]?.best || 0;
+  if(score>prev){ data[gameKey]={best:score, updated: Date.now()}; localStorage.setItem(key, JSON.stringify(data)); }
+}
+</script>
+
+
+
+
+
+<script>
+(function(){
+  function bind(){
+    document.querySelectorAll('#restartBtn').forEach(function(btn){
+      if(!btn._bound){
+        btn._bound = true;
+        btn.addEventListener('click', function(e){ e.preventDefault(); location.reload(); });
+      }
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bind); } else { bind(); }
+})();
+</script>
+
+</body>
+</html>

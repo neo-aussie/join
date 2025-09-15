@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stats – HyperGameZ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .charts{display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+    @media (max-width:1100px){.charts{grid-template-columns:1fr}}
+    .chart{position:relative;background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:12px;overflow:hidden}
+    .chart canvas{width:100%;height:300px;display:block}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;color:#64748b;font-size:.9rem;margin-top:6px}
+    .toolbar{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin:-4px 0 10px}
+    .ghost{background:#fff;border:1px solid #e5e7eb;color:#0f172a}
+    .ghost:hover{background:#f8fafc}
+    /* tooltips */
+    .tip{position:absolute;pointer-events:none;z-index:5;transform:translate(-50%,-110%);background:#111827;color:#fff;
+         padding:.45rem .6rem;border-radius:8px;font-size:.85rem;white-space:nowrap;box-shadow:0 6px 20px rgba(2,8,23,.18)}
+    .tip::after{content:"";position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#111827}
+  </style>
+</head><body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="index.html"><img src="assets/logo.svg" alt="HyperGameZ logo" style="height:36px"></a>
+    <button class="nav-toggle" aria-label="Menu">☰</button>
+    <nav class="nav" aria-label="Primary" aria-expanded="false">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="games/index.html">Games</a></li>
+        <li><a href="stats.html">Stats</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms and Conditions</a></li>
+        <li><a href="cookies.html">Cookie Policy</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap section">
+  <div class="panel">
+    <h1 class="h2">Platform Stats</h1>
+    <p class="small">Interactive charts powered by your local data. We read high scores from <code>localStorage</code> to populate these views.</p>
+  </div>
+
+  <div class="toolbar">
+    <button class="cta ghost small" id="clearStats">Clear Local Stats</button>
+  </div>
+
+  <section class="charts">
+    <div class="chart" id="barWrap">
+      <h3 class="h3">Best Score by Game</h3>
+      <canvas id="bar"></canvas>
+      <div class="legend" id="barLegend">Hover a bar to highlight the game & value.</div>
+      <div class="tip" id="barTip" hidden></div>
+    </div>
+
+    <div class="chart" id="lineWrap">
+      <h3 class="h3">7-Day Sessions</h3>
+      <canvas id="line"></canvas>
+      <div class="legend">Simulated daily sessions, persisted locally so it stays stable.</div>
+      <div class="tip" id="lineTip" hidden></div>
+    </div>
+
+    <div class="chart" id="donutWrap">
+      <h3 class="h3">Genre Mix</h3>
+      <canvas id="donut"></canvas>
+      <div class="legend">All slices are rendered in black by request.</div>
+      <div class="tip" id="donutTip" hidden></div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap cols" style="align-items:flex-start">
+    <div style="min-width:220px">
+      <div class="small"><strong>HyperGameZ</strong><br>Play free HTML5 games. Scores saved locally on your device.</div>
+      <div class="small" style="margin-top:6px;">© <span id="year">2025</span> HyperGameZ. All rights reserved.</div>
+    </div>
+    <div>
+      <div class="small"><strong>Platform</strong></div>
+      <ul style="list-style:none;padding:0;margin:.4rem 0 0 0;display:grid;gap:6px">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="games/index.html">Games</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="sitemap.html">Sitemap</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="small"><strong>Legal</strong></div>
+      <ul style="list-style:none;padding:0;margin:.4rem 0 0 0;display:grid;gap:6px">
+        <li><a href="privacy.html">Privacy Policy</a></li>
+        <li><a href="terms.html">Terms & Conditions</a></li>
+        <li><a href="cookies.html">Cookie Policy</a></li>
+        <li><a href="dmca.html">DMCA</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<script src="script.js" type="module"></script>
+
+<script>
+/* ---------- helpers ---------- */
+const DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+function getScores(){ try{ return JSON.parse(localStorage.getItem('hypergamez_scores')||'{}'); }catch{ return {}; } }
+function gamesList(){ return ['Snake','Brick Breaker','Flappy Square','Memory Match','2048 Mini','Reaction Time','Tic Tac Toe','Whack-a-Mole','Avoider','Endless Runner']; }
+function resizeCanvas(cv, h=320){
+  cv.width  = Math.floor(cv.clientWidth * DPR);
+  cv.height = Math.floor(h * DPR);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(DPR,0,0,DPR,0,0); // draw in CSS px
+  return ctx;
+}
+function showTip(tip, x, y, html, cv){
+  const w=cv.clientWidth, h=cv.clientHeight;
+  tip.hidden=false; tip.innerHTML=html;
+  tip.style.left = clamp(x, 16, w-16) + 'px';
+  tip.style.top  = clamp(y, 16, h-16) + 'px';
+}
+function hideTip(tip){ tip.hidden=true; }
+function niceMax(n){
+  const m = Math.max(10, n);
+  const p = Math.pow(10, Math.floor(Math.log10(m)));
+  return Math.ceil(m / p) * p; // round up to 10/100/1000...
+}
+
+/* ---------- BAR: Best Score by Game (stable hover, no overflow) ---------- */
+(function(){
+  const tip  = document.getElementById('barTip');
+  const cv   = document.getElementById('bar');
+  let rects = [], hover = -1;
+
+  function draw(){
+    const ctx = resizeCanvas(cv, 320);
+    const W = cv.clientWidth, H = 300;
+    const padL = 46, padR = 20, padT = 10, padB = 60; // extra bottom for rotated labels
+    const axisY = H - padB;
+    const chartH = axisY - padT;
+
+    const labels = gamesList();
+    const data   = labels.map(n => getScores()[n]?.best || 0);
+    const max    = niceMax(Math.max(...data));
+
+    const bw = (W - padL - padR) / labels.length;
+
+    ctx.clearRect(0,0,W,H);
+    // axes
+    ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,axisY); ctx.lineTo(W-padR,axisY); ctx.stroke();
+
+    // dynamic label skipping
+    const need = 66;                 // px to afford a label
+    const skip = Math.max(1, Math.ceil(need / bw));
+
+    rects = [];
+    labels.forEach((lbl,i)=>{
+      const v = data[i];
+      const x = padL + i*bw + 8;
+      const w = bw - 16;
+      const h = (v/max) * chartH;
+      const y = axisY - h;
+
+      // bar (no width growth on hover -> no layout shift)
+      const grad = ctx.createLinearGradient(0,0,0,axisY);
+      grad.addColorStop(0, '#ff2e63');
+      grad.addColorStop(1, '#ff7b00');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x,y,w,h);
+
+      // highlight stroke on hover
+      if(i===hover){
+        ctx.strokeStyle='#0f172a'; ctx.lineWidth=2; ctx.strokeRect(x-1,y-1,w+2,h+2);
+      }
+
+      // value label: inside (white) if tall, else just above and clamped
+      ctx.font='12px Inter'; ctx.textAlign='center';
+      if(h > 24){
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(v, x+w/2, y+14);
+      } else {
+        ctx.fillStyle = '#0f172a';
+        ctx.fillText(v, x+w/2, Math.max(12, y-6));
+      }
+
+      // rotated bottom label (skip)
+      if(i % skip === 0 || i === labels.length-1){
+        ctx.save();
+        ctx.translate(x+w/2, axisY+20);
+        ctx.rotate(-Math.PI/3); // -60°
+        ctx.fillStyle='#64748b'; ctx.textAlign='right';
+        ctx.fillText(lbl, 0, 0);
+        ctx.restore();
+      }
+
+      rects.push({x, y, w, h, label: lbl, value: v});
+    });
+  }
+
+  function onMove(e){
+    const r = cv.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    let found = -1;
+    rects.forEach((b,i)=>{ if(mx>=b.x && mx<=b.x+b.w && my>=b.y && my<=b.y+b.h) found=i; });
+    if(found !== hover){ hover = found; draw(); }
+    if(hover>=0){
+      const b = rects[hover];
+      showTip(tip, mx, my, `<strong>${b.label}</strong><br>Best: ${b.value}`, cv);
+    }else hideTip(tip);
+  }
+  function onLeave(){ hover=-1; draw(); hideTip(tip); }
+
+  window.addEventListener('resize', draw, {passive:true});
+  cv.addEventListener('mousemove', onMove);
+  cv.addEventListener('mouseleave', onLeave);
+  draw();
+})();
+
+/* ---------- LINE: 7-day sessions (hover tooltip + guide; clamped tips) ---------- */
+(function(){
+  const tip  = document.getElementById('lineTip');
+  const cv   = document.getElementById('line');
+
+  const key='hypergamez_sessions';
+  let arr; try{ arr=JSON.parse(localStorage.getItem(key)); }catch{ arr=null; }
+  if(!arr||arr.length!==7){ arr=Array.from({length:7},()=>Math.floor(Math.random()*12)+1); localStorage.setItem(key,JSON.stringify(arr)); }
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let pts=[], hover=-1;
+
+  function draw(){
+    const ctx = resizeCanvas(cv, 320);
+    const W=cv.clientWidth, H=300, pad=32;
+    const max = niceMax(Math.max(...arr,10));
+    const step=(W-pad*2)/(arr.length-1);
+
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='#e5e7eb'; ctx.beginPath(); ctx.moveTo(pad,10); ctx.lineTo(pad,H-32); ctx.lineTo(W-pad,H-32); ctx.stroke();
+
+    ctx.beginPath();
+    arr.forEach((v,i)=>{ const x=pad+i*step, y=(H-32) - (v/max)*(H-72); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); pts[i]={x,y,v,day:days[i]}; });
+    ctx.strokeStyle='#ff2e63'; ctx.lineWidth=3; ctx.stroke();
+
+    pts.forEach((p,i)=>{ ctx.fillStyle=(i===hover)?'#ff7b00':'#0f172a'; const r=(i===hover)?5:3.5; ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#64748b'; ctx.font='12px Inter'; ctx.fillText(days[i], p.x-12, H-16); });
+
+    if(hover>=0){ const p=pts[hover]; ctx.strokeStyle='rgba(2,8,23,.15)'; ctx.setLineDash([6,6]); ctx.beginPath(); ctx.moveTo(p.x,10); ctx.lineTo(p.x,H-32); ctx.stroke(); ctx.setLineDash([]); }
+  }
+  function onMove(e){ const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left; let idx=0,b=1e9; pts.forEach((p,i)=>{ const d=Math.abs(p.x-mx); if(d<b){b=d; idx=i;} }); if(idx!==hover){ hover=idx; draw(); } const p=pts[hover]; showTip(tip, mx, p.y, `<strong>${p.day}</strong><br>Sessions: ${p.v}`, cv); }
+  function onLeave(){ hover=-1; hideTip(tip); draw(); }
+
+  window.addEventListener('resize', draw, {passive:true});
+  cv.addEventListener('mousemove', onMove);
+  cv.addEventListener('mouseleave', onLeave);
+  draw();
+})();
+
+/* ---------- DONUT: black slices only (slice pop-out + tooltip) ---------- */
+(function(){
+  const tip  = document.getElementById('donutTip');
+  const cv   = document.getElementById('donut');
+  const parts=[['Arcade',5],['Puzzle',3],['Reaction',2]];
+  const color='#0f172a'; // single BLACK color
+  const total=parts.reduce((a,b)=>a+b[1],0);
+  let slices=[], hover=-1;
+
+  function draw(){
+    const ctx = resizeCanvas(cv,320);
+    const W=cv.clientWidth, H=300, cx=Math.min(W/2,180), cy=150, R=100, r=60;
+    ctx.clearRect(0,0,W,H);
+    let a0=-Math.PI/2; slices=[];
+    parts.forEach((p,i)=>{ const a1=a0+2*Math.PI*(p[1]/total), mid=(a0+a1)/2, pop=(i===hover)?8:0, ox=Math.cos(mid)*pop, oy=Math.sin(mid)*pop;
+      ctx.beginPath(); ctx.moveTo(cx+ox,cy+oy); ctx.arc(cx+ox,cy+oy,R,a0,a1); ctx.lineTo(cx+ox+Math.cos(a1)*r, cy+oy+Math.sin(a1)*r); ctx.arc(cx+ox,cy+oy,r,a1,a0,true); ctx.closePath();
+      ctx.fillStyle=color; ctx.fill();
+      slices.push({i,a0,a1,mid,label:p[0],val:p[1],cx,cy,R,r}); a0=a1; });
+      // inner hole
+      ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over';
+      // subtle outline for visibility
+      ctx.strokeStyle='rgba(15,23,42,.25)'; ctx.lineWidth=1; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  }
+  function pick(mx,my){ const W=cv.clientWidth, cx=Math.min(W/2,180), cy=150; const dx=mx-cx, dy=my-cy, dist=Math.hypot(dx,dy); if(dist<60||dist>100) return -1; let ang=Math.atan2(dy,dx); if(ang<-Math.PI/2) ang+=Math.PI*2; for(const s of slices){ if(ang>=s.a0 && ang<s.a1) return s.i; } return -1; }
+  function onMove(e){ const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top; const idx=pick(mx,my); if(idx!==hover){ hover=idx; draw(); } if(hover>=0){ const s=slices[hover]; const pct=Math.round((s.val/total)*100); showTip(tip, mx, my, `<strong>${s.label}</strong><br>${s.val} • ${pct}%`, cv); } else hideTip(tip); }
+  function onLeave(){ hover=-1; draw(); hideTip(tip); }
+
+  window.addEventListener('resize', draw, {passive:true});
+  cv.addEventListener('mousemove', onMove);
+  cv.addEventListener('mouseleave', onLeave);
+  draw();
+})();
+
+/* ---------- clear local stats ---------- */
+document.getElementById('clearStats').addEventListener('click', ()=>{
+  localStorage.removeItem('hypergamez_scores');
+  localStorage.removeItem('hypergamez_sessions');
+  location.reload();
+});
+const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();
+</script>
+</body></html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reaction Time – HyperGameZ</title>
+<link href="../styles.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+.game-wrap{max-width:900px;margin:20px auto;padding:12px}
+.canvas-wrap{display:grid;place-items:center;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;min-height:360px}
+.controls{margin-top:10px;color:#64748b}
+button.cta.small{padding:.55rem .9rem;border-radius:10px}
+</style>
+
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="../index.html"><img src="../assets/logo.svg" alt="HyperGameZ logo" style="height:36px"><strong class="brand-name">HyperGameZ</strong></a>
+    <a class="cta" href="../index.html" style="text-decoration:none;">Back to Home</a>
+  </div>
+</header>
+<main class="wrap section">
+  <div class="panel">
+    <h1 class="h2">Reaction Time</h1>
+    <div class="game-wrap">
+      
+<div class="canvas-wrap" style="min-height:auto;">
+  <div id="box" style="height:200px;border:1px dashed #e5e7eb;border-radius:12px;display:grid;place-items:center;background:#fafafa;">Click when green</div>
+</div>
+
+ 
+<div class="controls small"><strong>How to play:</strong> Wait until green, then click. Faster = better score.</div>
+<div class="controls"><a class="cta small" id="restartBtn" href="#">Restart</a></div>
+ 
+<script>
+const box=document.getElementById('box'); let start, timeout;
+function reset(){ box.style.background='#fafafa'; box.textContent='Wait...'; timeout=setTimeout(()=>{ box.style.background='#86efac'; start=performance.now(); box.textContent='CLICK!'; }, 1000+Math.random()*2000); }
+box.addEventListener('click', ()=>{
+  if(box.style.background==='rgb(134, 239, 172)'){ const t=performance.now()-start; const ms=Math.round(t); box.textContent='Reaction: '+ms+' ms'; saveHighScore('Reaction Time', Math.max(1, 1000-ms)); setTimeout(()=>{ box.textContent='Click to retry'; }, 800); }
+  else { clearTimeout(timeout); box.textContent='Too soon!'; setTimeout(reset,800); }
+});
+reset();
+document.getElementById('restartBtn')&& (document.getElementById('restartBtn').onclick=()=>location.reload());
+</script>
+
+    </div>
+  </div>
+</main>
+<footer class="footer"><div class="wrap cols"><div class="small">© <span id="year">2025</span> HyperGameZ</div></div></footer>
+<script>
+const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();
+</script>
+
+<script>
+function saveHighScore(gameKey, score){
+  const key='hypergamez_scores';
+  let data={}; try{ data=JSON.parse(localStorage.getItem(key))||{} }catch(e){ data={} }
+  const prev=data[gameKey]?.best || 0;
+  if(score>prev){ data[gameKey]={best:score, updated: Date.now()}; localStorage.setItem(key, JSON.stringify(data)); }
+}
+</script>
+
+
+
+
+
+<script>
+(function(){
+  function bind(){
+    document.querySelectorAll('#restartBtn').forEach(function(btn){
+      if(!btn._bound){
+        btn._bound = true;
+        btn.addEventListener('click', function(e){ e.preventDefault(); location.reload(); });
+      }
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bind); } else { bind(); }
+})();
+</script>
+
+</body>
+</html>

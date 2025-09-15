@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tic Tac Toe – HyperGameZ</title>
+<link href="../styles.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+.game-wrap{max-width:900px;margin:20px auto;padding:12px}
+.canvas-wrap{display:grid;place-items:center;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;min-height:360px}
+.controls{margin-top:10px;color:#64748b}
+button.cta.small{padding:.55rem .9rem;border-radius:10px}
+</style>
+
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="../index.html"><img src="../assets/logo.svg" alt="HyperGameZ logo" style="height:36px"><strong class="brand-name">HyperGameZ</strong></a>
+    <a class="cta" href="../index.html" style="text-decoration:none;">Back to Home</a>
+  </div>
+</header>
+<main class="wrap section">
+  <div class="panel">
+    <h1 class="h2">Tic Tac Toe</h1>
+    <div class="game-wrap">
+      
+<div class="canvas-wrap" style="min-height:auto;">
+  <div id="b" style="display:grid;grid-template-columns:repeat(3,100px);gap:8px"></div>
+</div>
+
+ 
+<div class="controls small"><strong>How to play:</strong> Click a cell to place X. Get 3 in a row before the AI.</div>
+<div class="controls"><a class="cta small" id="restartBtn" href="#">Restart</a></div>
+ 
+<script>
+const b=document.getElementById('b'); let cells=Array(9).fill(''); let turn='X';
+function draw(){ b.innerHTML=''; cells.forEach((v,i)=>{ const d=document.createElement('button'); d.className='cta small'; d.style.height='100px'; d.style.fontSize='28px'; d.textContent=v||' '; d.addEventListener('click',()=>move(i)); b.appendChild(d); }); }
+function win(p){ const w=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return w.some(a=>a.every(i=>cells[i]===p)); }
+function move(i){ if(cells[i]||turn!=='X')return; cells[i]='X'; if(win('X')){ alert('You win!'); saveHighScore('Tic Tac Toe', 1 + (cells.filter(Boolean).length)); return;} ai(); draw(); if(win('O')) alert('AI wins!'); }
+function ai(){ let empty=cells.map((v,i)=>v?null:i).filter(v=>v!==null); if(!empty.length)return; cells[empty[Math.floor(Math.random()*empty.length)]]='O'; }
+draw();
+document.getElementById('restartBtn')&& (document.getElementById('restartBtn').onclick=()=>location.reload());
+</script>
+
+    </div>
+  </div>
+</main>
+<footer class="footer"><div class="wrap cols"><div class="small">© <span id="year">2025</span> HyperGameZ</div></div></footer>
+<script>
+const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();
+</script>
+
+<script>
+function saveHighScore(gameKey, score){
+  const key='hypergamez_scores';
+  let data={}; try{ data=JSON.parse(localStorage.getItem(key))||{} }catch(e){ data={} }
+  const prev=data[gameKey]?.best || 0;
+  if(score>prev){ data[gameKey]={best:score, updated: Date.now()}; localStorage.setItem(key, JSON.stringify(data)); }
+}
+</script>
+
+
+
+
+
+<script>
+(function(){
+  function bind(){
+    document.querySelectorAll('#restartBtn').forEach(function(btn){
+      if(!btn._bound){
+        btn._bound = true;
+        btn.addEventListener('click', function(e){ e.preventDefault(); location.reload(); });
+      }
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bind); } else { bind(); }
+})();
+</script>
+
+</body>
+</html>

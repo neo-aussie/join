@@ -1,0 +1,134 @@
+/* HyperGameZ clone of BestRatedGamesNZ (light theme) */
+:root{
+  --bg:#ffffff;
+  --panel:#f5f7fb;
+  --text:#0f172a;
+  --muted:#64748b;
+  --accent1:#ff7b00;
+  --accent2:#ff2e63;
+  --card:#ffffff;
+  --ring:rgba(255,126,0,.35);
+  --rad:14px;
+  --border:#e5e7eb;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+a{color:var(--accent2)}
+
+.site-header{position:sticky;top:0;z-index:1000;background:#fffffff2;backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.site-header .bar{display:flex;align-items:center;justify-content:space-between;min-height:64px}
+.brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:inherit}
+.brand img{height:36px}
+.nav ul{display:flex;gap:1rem;list-style:none;margin:0;padding:0}
+.nav a{color:var(--text);text-decoration:none;padding:.5rem .75rem;border-radius:10px}
+.nav a:hover{background:#f3f4f6}
+.nav-toggle{display:none;background:none;border:1px solid var(--border);padding:.45rem .6rem;border-radius:10px;color:var(--text)}
+
+@media (max-width: 760px){
+  .nav-toggle{display:block}
+  .nav ul{position:absolute;top:70px;right:20px;background:#fff;padding:.6rem;border-radius:12px;display:none;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+  .nav[aria-expanded="true"] ul{display:flex}
+}
+
+.hero{padding:60px 0;background:
+  radial-gradient(900px 500px at 15% -10%, rgba(255,123,0,.12), transparent 40%),
+  radial-gradient(900px 500px at 85% 0%, rgba(255,46,99,.10), transparent 40%);
+  text-align:center;
+}
+.hero h1{font-size:clamp(28px,4.2vw,48px);line-height:1.15;margin:0 0 .5rem}
+.hero .sub{color:var(--muted);margin:.25rem 0 1.25rem}
+.cta{display:inline-block;background:linear-gradient(90deg,var(--accent2),var(--accent1));color:#fff;text-decoration:none;
+     padding:.85rem 1.2rem;border-radius:12px;border:0;cursor:pointer}
+.cta.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+
+.section{padding:26px 0}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:18px}
+.grid{display:grid;gap:16px;grid-template-columns: repeat(2, 1fr)}
+@media (max-width: 860px){.grid{grid-template-columns:1fr}}
+.h2{font-size:1.6rem;margin:0 0 .5rem}
+.h3{font-size:1.1rem;margin:.25rem 0 .25rem}
+
+.cards{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+@media (max-width: 1020px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media (max-width: 680px){.cards{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card img{display:block;width:100%;height:180px;object-fit:cover;background:#f3f4f6}
+.card .body{padding:12px}
+.card .row{display:flex;justify-content:space-between;color:var(--muted)}
+
+.form{display:grid;gap:10px}
+.form input,.form textarea{width:100%;background:#fff;border:1px solid var(--border);border-radius:10px;color:var(--text);padding:.75rem 1rem}
+.form input:focus,.form textarea:focus{outline:none;box-shadow:0 0 0 6px var(--ring)}
+.form .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width: 680px){.form .row{grid-template-columns:1fr}}
+
+.footer{border-top:1px solid var(--border);padding:26px 0 36px;background:#fafafa;margin-top:24px}
+.footer .cols{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.small{color:var(--muted);font-size:.95rem}
+.badge{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:.25rem .6rem;color:var(--muted);background:#fff}
+.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#f3f4f6;border:1px solid var(--border);border-radius:8px;padding:.1rem .4rem}
+blockquote{border-left:3px solid #e5e7eb;margin:0;padding:.5rem 1rem;color:var(--muted);background:#fafafa;border-radius:8px}
+
+/* Fix nav bar alignment */
+.site-header .bar{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.site-header nav ul{display:flex;gap:20px;align-items:center;margin:0;padding:0;list-style:none;}
+.site-header nav a{color:#0f172a;text-decoration:none;font-weight:500;}
+.site-header nav a:hover{color:#ff2e63;}
+
+/* --- HyperGameZ header polish --- */
+.site-header .bar{gap:16px}
+.brand strong.brand-name{display:none} /* hide duplicate text next to logo on desktop */
+@media (max-width: 760px){
+  .brand strong.brand-name{display:inline}
+}
+.nav ul{align-items:center;justify-content:center}
+.nav a{color:var(--text);text-decoration:none;padding:.5rem .75rem;border-radius:10px}
+.nav a:hover{background:#f3f4f6}
+/* Links in footer/body */
+a{color:#0f172a;text-decoration:none}
+a:hover{text-decoration:underline}
+.footer a{color:#0f172a}
+.footer a:hover{text-decoration:underline}
+
+/* --- v4: Ensure brand text and proper nav alignment --- */
+.brand strong.brand-name{display:inline !important}
+.nav ul{align-items:center;justify-content:center}
+.nav a{color:var(--text);text-decoration:none;padding:.5rem .75rem;border-radius:10px}
+.nav a:hover{background:#f3f4f6}
+
+/* v5 nav polish */
+.site-header .bar{display:flex;align-items:center;justify-content:space-between}
+.nav ul{display:flex;gap:1rem;align-items:center;justify-content:center;margin:0;padding:0}
+.nav a{display:inline-block}
+
+/* v6: restart button style */
+.cta.small{ padding:.55rem .9rem; border-radius:10px; font-size:.95rem }
+.controls{ margin-top:10px; color: var(--muted) }
+
+/* v7 cta normalize */
+.cta{ -webkit-appearance:none; appearance:none; border:0; background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#fff; text-decoration:none; padding:.85rem 1.2rem; border-radius:12px; cursor:pointer; display:inline-block }
+.cta.small{ padding:.55rem .9rem; border-radius:10px; font-size:.95rem }
+.controls{ margin-top:10px; color: var(--muted) }
+
+/* Privacy popup */
+.modal-backdrop{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  background:rgba(15,23,42,.55); backdrop-filter: blur(2px); z-index: 9999;
+}
+.modal{
+  width:min(560px, 92vw); background:#fff; border:1px solid #e5e7eb; border-radius:16px;
+  padding:20px; box-shadow:0 20px 60px rgba(2,8,23,.25);
+}
+.modal h3{ margin:0 0 8px; font-size:1.15rem }
+.modal p{ color:#475569; margin:0 0 14px; line-height:1.5 }
+.modal .row{ display:flex; gap:10px; flex-wrap:wrap }
+
+/* Buttons */
+.btn{ -webkit-appearance:none; appearance:none; border:0; cursor:pointer;
+  background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:#fff;
+  padding:.7rem 1rem; border-radius:12px; font-weight:600;
+}
+.btn.ghost{ background:#fff; color:#0f172a; border:1px solid #e5e7eb }
+.btn:focus{ outline:2px solid #94a3b8; outline-offset:2px }

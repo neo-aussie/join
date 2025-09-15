@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Whack-a-Mole – HyperGameZ</title>
+  <link href="../styles.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    .game-wrap{max-width:900px;margin:20px auto;padding:12px}
+    .canvas-wrap{display:grid;place-items:center;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;min-height:360px}
+    .controls{margin-top:10px;color:#64748b}
+    /* Ensure CTA styling works for both <a> and <button> */
+    .cta{-webkit-appearance:none;appearance:none;border:0;background:linear-gradient(90deg,var(--accent2),var(--accent1));
+         color:#fff;text-decoration:none;padding:.85rem 1.2rem;border-radius:12px;cursor:pointer;display:inline-block}
+    .cta.small{padding:.55rem .9rem;border-radius:10px;font-size:.95rem}
+    /* Make the holes large touch targets but neutral styling (not gradient) */
+    #grid button{background:#fff;border:1px solid #e5e7eb;border-radius:10px;font-size:28px;line-height:1}
+    #grid button:active{transform:scale(.98)}
+    .score{font-weight:600;color:#0f172a}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="../index.html"><img src="../assets/logo.svg" alt="HyperGameZ logo" style="height:36px"><strong class="brand-name">HyperGameZ</strong></a>
+    <a class="cta" href="../index.html" style="text-decoration:none;">Back to Home</a>
+  </div>
+</header>
+
+<main class="wrap section">
+  <div class="panel">
+    <h1 class="h2">Whack-a-Mole</h1>
+    <div class="game-wrap">
+
+      <div class="canvas-wrap" style="min-height:auto;">
+        <div id="grid" style="display:grid;grid-template-columns:repeat(3,120px);gap:10px;padding:10px"></div>
+      </div>
+
+      <div class="controls small">
+        <strong>How to play:</strong> Click the mole 🐹 as it appears to score. The board updates every 0.8s.
+        <span class="score"> | Score: <span id="score">0</span></span>
+      </div>
+
+      <div class="controls">
+        <a class="cta small" id="restartBtn" href="#">Restart</a>
+      </div>
+
+      <script>
+        // --- High score utility (localStorage) ---
+        function saveHighScore(gameKey, score){
+          const key='hypergamez_scores';
+          let data={}; try{ data=JSON.parse(localStorage.getItem(key))||{} }catch(e){ data={} }
+          const prev=data[gameKey]?.best || 0;
+          if(score>prev){ data[gameKey]={best:score, updated: Date.now()}; localStorage.setItem(key, JSON.stringify(data)); }
+        }
+
+        // --- Game logic ---
+        const grid = document.getElementById('grid');
+        const scoreEl = document.getElementById('score');
+        let score = 0, holes = [];
+
+        // Build 3x3 board
+        for(let i=0;i<9;i++){
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.style.height = '120px';
+          btn.textContent = ' ';
+          btn.addEventListener('click', () => {
+            if (btn.textContent === '🐹') {
+              score++;
+              scoreEl.textContent = score;
+              btn.textContent = '+';
+              saveHighScore('Whack-a-Mole', score);
+              setTimeout(() => { btn.textContent = ' '; }, 200);
+            }
+          });
+          grid.appendChild(btn);
+          holes.push(btn);
+        }
+
+        // Spawn moles
+        setInterval(() => {
+          holes.forEach(b => b.textContent = ' ');
+          holes[Math.floor(Math.random()*holes.length)].textContent = '🐹';
+        }, 800);
+      </script>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer"><div class="wrap cols"><div class="small">© <span id="year">2025</span> HyperGameZ</div></div></footer>
+<script>const y=document.getElementById('year'); if(y) y.textContent=new Date().getFullYear();</script>
+
+<script>
+  // Robust restart binding
+  (function(){
+    function bind(){
+      var b=document.getElementById('restartBtn');
+      if(b && !b._bound){
+        b._bound = true;
+        b.addEventListener('click', function(e){ e.preventDefault(); location.reload(); });
+      }
+    }
+    if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bind); } else { bind(); }
+  })();
+</script>
+</body>
+</html>
